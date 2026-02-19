@@ -93,6 +93,32 @@ class TempleInfoApplicationTests {
                 "<td align=\"left\" valign=\"middle\" class=\"subhead\">:</td>" +
                 "<td align=\"left\" valign=\"middle\" class=\"style5\">Tamil Nadu</td>" +
                 "</tr></tbody></table>" +
+                "<table>" +
+                "<tr><td><span class=\"topic\">Singers:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock Singers Content</td></tr>" +
+                "<tr><td><span class=\"topic\">Festival:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock Festival Content</td></tr>" +
+                "<tr><td><span class=\"topic\">General Information:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock General Information Content</td></tr>" +
+                "<tr><td><span class=\"topic\">Address:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock Address Content</td></tr>" +
+                "<tr><td><span class=\"topic\">Phone:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock Phone Content</td></tr>" +
+                "<tr><td><span class=\"topic\">Opening Time:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock Opening Time Content</td></tr>" +
+                "<tr><td><span class=\"topic\">Temple's Speciality:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock Speciality Content</td></tr>" +
+                "<tr><td><span class=\"subhead\">Prayers:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock Prayers Content</td></tr>" +
+                "<tr><td><span class=\"subhead\">Thanks giving:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock Thanks Giving Content</td></tr>" +
+                "<tr><td><span class=\"subhead\">Greatness Of Temple:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock Greatness Content</td></tr>" +
+                "<tr><td><span class=\"subhead\">Temple History:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock History Content</td></tr>" +
+                "<tr><td><span class=\"subhead\">Special Features:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock Features Content</td></tr>" +
+                "</table>" +
                 "</body></html>";
 
         when(webPageFetcher.fetch(anyString())).thenReturn(Jsoup.parse(mockHtml));
@@ -120,5 +146,17 @@ class TempleInfoApplicationTests {
         assertThat(temple.city()).isEqualTo("Chidambaram");
         assertThat(temple.district()).isEqualTo("Cuddalore");
         assertThat(temple.state()).isEqualTo("Tamil Nadu");
+        assertThat(temple.singers()).isEqualTo("Mock Singers Content");
+        assertThat(temple.festival()).isEqualTo("Mock Festival Content");
+        assertThat(temple.generalInformation()).isEqualTo("Mock General Information Content");
+        assertThat(temple.address()).isEqualTo("Mock Address Content");
+        assertThat(temple.phone()).isEqualTo("Mock Phone Content");
+        assertThat(temple.openingTime()).isEqualTo("Mock Opening Time Content");
+        assertThat(temple.speciality()).isEqualTo("Mock Speciality Content");
+        assertThat(temple.prayers()).isEqualTo("Mock Prayers Content");
+        assertThat(temple.thanksGiving()).isEqualTo("Mock Thanks Giving Content");
+        assertThat(temple.greatness()).isEqualTo("Mock Greatness Content");
+        assertThat(temple.history()).isEqualTo("Mock History Content");
+        assertThat(temple.features()).isEqualTo("Mock Features Content");
     }
 }

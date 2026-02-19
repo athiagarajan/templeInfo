@@ -25,37 +25,39 @@ public class TempleController {
     public Temple getTempleInfo(@RequestBody TempleUrlRequest request) throws IOException {
         try {
             String url = request.getUrl();
-            Document doc = webPageFetcher.fetch(url); // Now returns Jsoup Document
+            Document doc = webPageFetcher.fetch(url);
 
             // --- Name Extraction ---
-            String name = null;
-            Elements nameElements = doc.select("*:contains(Sri Chidambaram thillai natarajar temple)"); // Generic selector
-            if (!nameElements.isEmpty()) {
-                // Try to find the element that most closely matches the name as its own text
-                for (Element el : nameElements) {
-                    if (el.text().trim().equals("Sri Chidambaram thillai natarajar temple")) {
-                        name = el.text().trim();
-                        break;
-                    }
-                }
-                if (name == null) { // Fallback if exact match not found
-                    name = nameElements.first().text().trim(); // Take the text of the first found element
-                }
+            String name = extractWithSelector(doc, "span#HyperLink2");
+            if (name == null) {
+                name = extractWithSelector(doc, "span.subhead");
             }
             // --- End Name Extraction ---
 
+            String moolavar = extractField(doc, "Moolavar");
+            String urchavar = extractField(doc, "Urchavar");
+            String ammanThayar = extractField(doc, "Amman / Thayar");
+            String thalaVirutcham = extractField(doc, "Thala Virutcham");
+            String theertham = extractField(doc, "Theertham");
+            String agamamPooja = extractField(doc, "Agamam / Pooja");
+            String oldYear = extractField(doc, "Old year");
+            String historicalName = extractField(doc, "Historical Name");
+            String city = extractField(doc, "City");
+            String district = extractField(doc, "District");
+            String state = extractField(doc, "State");
 
-            String moolavar = extractValueFromTableRow(doc, "Moolavar"); // Label is "Moolavar"
-            String urchavar = extractValueFromTableRow(doc, "Urchavar");
-            String ammanThayar = extractValueFromTableRow(doc, "Amman / Thayar");
-            String thalaVirutcham = extractValueFromTableRow(doc, "Thala Virutcham");
-            String theertham = extractValueFromTableRow(doc, "Theertham");
-            String agamamPooja = extractValueFromTableRow(doc, "Agamam / Pooja");
-            String oldYear = extractValueFromTableRow(doc, "Old year");
-            String historicalName = extractValueFromTableRow(doc, "Historical Name");
-            String city = extractValueFromTableRow(doc, "City");
-            String district = extractValueFromTableRow(doc, "District");
-            String state = extractValueFromTableRow(doc, "State");
+            String singers = extractField(doc, "Singers");
+            String festival = extractField(doc, "Festival");
+            String generalInformation = extractField(doc, "General Information");
+            String address = extractField(doc, "Address");
+            String phone = extractField(doc, "Phone");
+            String openingTime = extractField(doc, "Opening Time");
+            String speciality = extractField(doc, "Speciality"); // Simplified label
+            String prayers = extractField(doc, "Prayers");
+            String thanksGiving = extractField(doc, "Thanks giving");
+            String greatness = extractField(doc, "Greatness"); // Simplified label
+            String history = extractField(doc, "History"); // Simplified label
+            String features = extractField(doc, "Features"); // Simplified label
 
             Temple temple = new Temple(
                 name,
@@ -69,16 +71,28 @@ public class TempleController {
                 historicalName,
                 city,
                 district,
-                state
+                state,
+                singers,
+                festival,
+                generalInformation,
+                address,
+                phone,
+                openingTime,
+                speciality,
+                prayers,
+                thanksGiving,
+                greatness,
+                history,
+                features
             );
 
-            System.out.println("Temple info extracted using Jsoup selectors: " + temple); // Keep final output log
+            System.out.println("Temple info extracted: " + temple);
 
             return temple;
         } catch (IOException e) {
-            System.err.println("Error during Jsoup URL connection or selector extraction: " + e.getMessage());
+            System.err.println("Error during extraction: " + e.getMessage());
             e.printStackTrace();
-            throw new IOException("Failed to get temple info due to Jsoup error", e);
+            throw new IOException("Failed to get temple info", e);
         }
     }
 
@@ -92,26 +106,91 @@ public class TempleController {
             return elements.first().text().trim();
         }
         return null;
-}
+    }
 
     /**
-     * Extracts value from a table row pattern: `<td>Label</td><td>:</td><td>Value</td>`
+     * Unified field extraction. Tries multiple strategies to find the value for a given label.
      */
-    private String extractValueFromTableRow(Document doc, String label) {
-        // Find the td element that contains the label text (checks children)
-        Elements labelCells = doc.select(String.format("td.style8:contains(%s)", label)); // Uses :contains()
+    private String extractField(Document doc, String label) {
+        // Strategy 1: Table row pattern <td>Label</td><td>:</td><td>Value</td>
+        String value = extractValueFromTableRow(doc, label);
+        if (value != null) return value;
 
-        for (Element labelCell : labelCells) {
-            // Assume this labelCell is the correct one, and proceed to its siblings
-            Element colonCell = labelCell.nextElementSibling();
-            if (colonCell != null && colonCell.text().trim().equals(":")) {
-                Element valueCell = colonCell.nextElementSibling();
-                if (valueCell != null && !valueCell.text().trim().isEmpty()) {
-                    String value = valueCell.text().trim();
-                    return value;
+        // Strategy 2: Section pattern (Label in span.topic/span.subhead, content in newsdetails below)
+        value = extractSectionContent(doc, label);
+        if (value != null) return value;
+
+        return null;
+    }
+
+    private String extractSectionContent(Document doc, String label) {
+        Element labelElement = findElementByText(doc, "span.topic, span.subhead, td.style8, td.style2", label);
+        if (labelElement == null) return null;
+
+        // Try same row first (in case it's a table row but not matching style8)
+        Element parentRow = labelElement.closest("tr");
+        if (parentRow != null) {
+            // Check for value in the same row
+            Elements sameRowValue = parentRow.select("td.style5, td.newsdetails");
+            for (Element v : sameRowValue) {
+                if (!v.text().trim().isEmpty() && !v.text().contains(label)) {
+                    return v.text().trim();
                 }
             }
+
+            // Try next rows
+            Element nextRow = parentRow.nextElementSibling();
+            int rowLimit = 15;
+            while (nextRow != null && rowLimit-- > 0) {
+                Element newsDetail = nextRow.selectFirst("td.newsdetails, td.style5");
+                if (newsDetail != null && !newsDetail.text().trim().isEmpty()) {
+                    String text = newsDetail.text().trim();
+                    if (!text.equals(":") && !text.equals("-")) {
+                        return text;
+                    }
+                }
+                // Stop if we hit another significant label
+                if (!nextRow.select("span.topic, span.subhead").isEmpty()) {
+                    if (!nextRow.text().contains(label)) {
+                        break;
+                    }
+                }
+                nextRow = nextRow.nextElementSibling();
+            }
         }
-        return null; // Value not found
+        return null;
+    }
+
+    private Element findElementByText(Document doc, String selector, String text) {
+        Elements elements = doc.select(selector);
+        for (Element el : elements) {
+            String elText = el.text().toLowerCase();
+            String searchLabel = text.toLowerCase();
+            if (elText.contains(searchLabel)) {
+                return el;
+            }
+        }
+        return null;
+    }
+
+    private String extractValueFromTableRow(Document doc, String label) {
+        Element labelCell = findElementByText(doc, "td.style8, td.style2, td.subhead", label);
+        if (labelCell == null) return null;
+
+        Element colonCell = labelCell.nextElementSibling();
+        if (colonCell != null && colonCell.text().trim().contains(":")) {
+            Element valueCell = colonCell.nextElementSibling();
+            if (valueCell != null && !valueCell.text().trim().isEmpty()) {
+                return valueCell.text().trim();
+            }
+        }
+        
+        // Fallback for cases where colon is in the same cell or missing
+        String cellText = labelCell.text().trim();
+        if (cellText.contains(":") && cellText.indexOf(":") < cellText.length() - 1) {
+            return cellText.substring(cellText.indexOf(":") + 1).trim();
+        }
+
+        return null;
     }
 }
