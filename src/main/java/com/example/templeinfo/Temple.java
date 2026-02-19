@@ -15,5 +15,14 @@ public record Temple(
     String state,
     String singers,
     String festival,
-    String generalInformation
+    String generalInformation,
+    String address,
+    String phone,
+    String openingTime,
+    String speciality,
+    String prayers,
+    String thanksGiving,
+    String greatness,
+    String history,
+    String features
 ) {}

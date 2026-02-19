@@ -49,6 +49,15 @@ public class TempleController {
             String singers = extractSectionContent(doc, "Singers");
             String festival = extractSectionContent(doc, "Festival");
             String generalInformation = extractSectionContent(doc, "General Information");
+            String address = extractSectionContent(doc, "Address");
+            String phone = extractSectionContent(doc, "Phone");
+            String openingTime = extractSectionContent(doc, "Opening Time");
+            String speciality = extractSectionContent(doc, "Temple's Speciality");
+            String prayers = extractSectionContent(doc, "Prayers");
+            String thanksGiving = extractSectionContent(doc, "Thanks giving");
+            String greatness = extractSectionContent(doc, "Greatness Of Temple");
+            String history = extractSectionContent(doc, "Temple History");
+            String features = extractSectionContent(doc, "Special Features");
 
             Temple temple = new Temple(
                 name,
@@ -65,7 +74,16 @@ public class TempleController {
                 state,
                 singers,
                 festival,
-                generalInformation
+                generalInformation,
+                address,
+                phone,
+                openingTime,
+                speciality,
+                prayers,
+                thanksGiving,
+                greatness,
+                history,
+                features
             );
 
             System.out.println("Temple info extracted: " + temple);
@@ -82,22 +100,29 @@ public class TempleController {
      * Extracts content from a section like "Singers", "Festival", or "General Information".
      */
     private String extractSectionContent(Document doc, String label) {
-        Element labelSpan = doc.selectFirst(String.format("span.topic:contains(%s)", label));
+        // Find the label span manually to avoid issues with special characters in :contains()
+        Element labelSpan = findElementByText(doc, "span.topic", label);
+        if (labelSpan == null) {
+            labelSpan = findElementByText(doc, "span.subhead", label);
+        }
         if (labelSpan == null) return null;
 
         // Try finding the content in the next td.newsdetails (most common for long text)
         Element current = labelSpan.closest("tr");
         if (current != null) {
             Element nextRow = current.nextElementSibling();
-            int rowLimit = 10; 
+            int rowLimit = 15; 
             while (nextRow != null && rowLimit-- > 0) {
                 Element newsDetail = nextRow.selectFirst("td.newsdetails");
                 if (newsDetail != null && !newsDetail.text().trim().isEmpty()) {
                     return newsDetail.text().trim();
                 }
-                // If we hit another topic span, we've likely passed the content
-                if (!nextRow.select("span.topic").isEmpty()) {
-                    break;
+                // If we hit another topic or subhead span that isn't the current one, we've likely passed the content
+                if (!nextRow.select("span.topic, span.subhead").isEmpty()) {
+                     // But only if it's not just the label we're looking at again
+                     if (!nextRow.text().contains(label)) {
+                        break;
+                     }
                 }
                 nextRow = nextRow.nextElementSibling();
             }
@@ -115,6 +140,16 @@ public class TempleController {
             if (!ownText.isEmpty()) return ownText;
         }
 
+        return null;
+    }
+
+    private Element findElementByText(Document doc, String selector, String text) {
+        Elements elements = doc.select(selector);
+        for (Element el : elements) {
+            if (el.text().contains(text)) {
+                return el;
+            }
+        }
         return null;
     }
 
