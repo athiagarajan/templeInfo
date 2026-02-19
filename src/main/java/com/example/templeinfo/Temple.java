@@ -24,5 +24,7 @@ public record Temple(
     String thanksGiving,
     String greatness,
     String history,
-    String features
+    String features,
+    String hfLat,
+    String hfLan
 ) {}
