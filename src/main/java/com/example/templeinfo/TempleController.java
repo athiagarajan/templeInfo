@@ -28,24 +28,13 @@ public class TempleController {
             Document doc = webPageFetcher.fetch(url); // Now returns Jsoup Document
 
             // --- Name Extraction ---
-            String name = null;
-            Elements nameElements = doc.select("*:contains(Sri Chidambaram thillai natarajar temple)"); // Generic selector
-            if (!nameElements.isEmpty()) {
-                // Try to find the element that most closely matches the name as its own text
-                for (Element el : nameElements) {
-                    if (el.text().trim().equals("Sri Chidambaram thillai natarajar temple")) {
-                        name = el.text().trim();
-                        break;
-                    }
-                }
-                if (name == null) { // Fallback if exact match not found
-                    name = nameElements.first().text().trim(); // Take the text of the first found element
-                }
+            String name = extractWithSelector(doc, "span#HyperLink2");
+            if (name == null) {
+                name = extractWithSelector(doc, "span.subhead");
             }
             // --- End Name Extraction ---
 
-
-            String moolavar = extractValueFromTableRow(doc, "Moolavar"); // Label is "Moolavar"
+            String moolavar = extractValueFromTableRow(doc, "Moolavar");
             String urchavar = extractValueFromTableRow(doc, "Urchavar");
             String ammanThayar = extractValueFromTableRow(doc, "Amman / Thayar");
             String thalaVirutcham = extractValueFromTableRow(doc, "Thala Virutcham");
@@ -56,6 +45,10 @@ public class TempleController {
             String city = extractValueFromTableRow(doc, "City");
             String district = extractValueFromTableRow(doc, "District");
             String state = extractValueFromTableRow(doc, "State");
+
+            String singers = extractSectionContent(doc, "Singers");
+            String festival = extractSectionContent(doc, "Festival");
+            String generalInformation = extractSectionContent(doc, "General Information");
 
             Temple temple = new Temple(
                 name,
@@ -69,17 +62,60 @@ public class TempleController {
                 historicalName,
                 city,
                 district,
-                state
+                state,
+                singers,
+                festival,
+                generalInformation
             );
 
-            System.out.println("Temple info extracted using Jsoup selectors: " + temple); // Keep final output log
+            System.out.println("Temple info extracted: " + temple);
 
             return temple;
         } catch (IOException e) {
-            System.err.println("Error during Jsoup URL connection or selector extraction: " + e.getMessage());
+            System.err.println("Error during extraction: " + e.getMessage());
             e.printStackTrace();
-            throw new IOException("Failed to get temple info due to Jsoup error", e);
+            throw new IOException("Failed to get temple info", e);
         }
+    }
+
+    /**
+     * Extracts content from a section like "Singers", "Festival", or "General Information".
+     */
+    private String extractSectionContent(Document doc, String label) {
+        Element labelSpan = doc.selectFirst(String.format("span.topic:contains(%s)", label));
+        if (labelSpan == null) return null;
+
+        // Try finding the content in the next td.newsdetails (most common for long text)
+        Element current = labelSpan.closest("tr");
+        if (current != null) {
+            Element nextRow = current.nextElementSibling();
+            int rowLimit = 10; 
+            while (nextRow != null && rowLimit-- > 0) {
+                Element newsDetail = nextRow.selectFirst("td.newsdetails");
+                if (newsDetail != null && !newsDetail.text().trim().isEmpty()) {
+                    return newsDetail.text().trim();
+                }
+                // If we hit another topic span, we've likely passed the content
+                if (!nextRow.select("span.topic").isEmpty()) {
+                    break;
+                }
+                nextRow = nextRow.nextElementSibling();
+            }
+        }
+
+        // Fallback: check the parent cell or next cell
+        Element parentTd = labelSpan.closest("td");
+        if (parentTd != null) {
+            Element nextTd = parentTd.nextElementSibling();
+            if (nextTd != null && !nextTd.text().trim().isEmpty()) {
+                return nextTd.text().trim();
+            }
+            // Check own text of the parent cell (if text follows span directly)
+            String ownText = parentTd.ownText().trim();
+            if (!ownText.isEmpty()) return ownText;
+        }
+
+        return null;
     }
 
     /**

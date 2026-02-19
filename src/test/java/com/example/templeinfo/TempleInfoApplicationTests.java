@@ -93,6 +93,14 @@ class TempleInfoApplicationTests {
                 "<td align=\"left\" valign=\"middle\" class=\"subhead\">:</td>" +
                 "<td align=\"left\" valign=\"middle\" class=\"style5\">Tamil Nadu</td>" +
                 "</tr></tbody></table>" +
+                "<table>" +
+                "<tr><td><span class=\"topic\">Singers:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock Singers Content</td></tr>" +
+                "<tr><td><span class=\"topic\">Festival:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock Festival Content</td></tr>" +
+                "<tr><td><span class=\"topic\">General Information:</span></td></tr>" +
+                "<tr><td class=\"newsdetails\">Mock General Information Content</td></tr>" +
+                "</table>" +
                 "</body></html>";
 
         when(webPageFetcher.fetch(anyString())).thenReturn(Jsoup.parse(mockHtml));
@@ -120,5 +128,8 @@ class TempleInfoApplicationTests {
         assertThat(temple.city()).isEqualTo("Chidambaram");
         assertThat(temple.district()).isEqualTo("Cuddalore");
         assertThat(temple.state()).isEqualTo("Tamil Nadu");
+        assertThat(temple.singers()).isEqualTo("Mock Singers Content");
+        assertThat(temple.festival()).isEqualTo("Mock Festival Content");
+        assertThat(temple.generalInformation()).isEqualTo("Mock General Information Content");
     }
 }

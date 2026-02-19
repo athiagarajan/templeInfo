@@ -12,5 +12,8 @@ public record Temple(
     String historicalName,
     String city,
     String district,
-    String state
+    String state,
+    String singers,
+    String festival,
+    String generalInformation
 ) {}
