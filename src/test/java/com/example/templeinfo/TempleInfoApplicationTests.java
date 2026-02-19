@@ -119,6 +119,8 @@ class TempleInfoApplicationTests {
                 "<tr><td><span class=\"subhead\">Special Features:</span></td></tr>" +
                 "<tr><td class=\"newsdetails\">Mock Features Content</td></tr>" +
                 "</table>" +
+                "<input type=\"hidden\" name=\"hfLat\" id=\"hfLat\" value=\"11.40033684\" />" +
+                "<input type=\"hidden\" name=\"hfLan\" id=\"hfLan\" value=\"79.69300032\" />" +
                 "</body></html>";
 
         when(webPageFetcher.fetch(anyString())).thenReturn(Jsoup.parse(mockHtml));
@@ -158,5 +160,7 @@ class TempleInfoApplicationTests {
         assertThat(temple.greatness()).isEqualTo("Mock Greatness Content");
         assertThat(temple.history()).isEqualTo("Mock History Content");
         assertThat(temple.features()).isEqualTo("Mock Features Content");
+        assertThat(temple.hfLat()).isEqualTo("11.40033684");
+        assertThat(temple.hfLan()).isEqualTo("79.69300032");
     }
 }

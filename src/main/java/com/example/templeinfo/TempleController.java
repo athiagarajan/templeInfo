@@ -59,6 +59,9 @@ public class TempleController {
             String history = extractField(doc, "History"); // Simplified label
             String features = extractField(doc, "Features"); // Simplified label
 
+            String hfLat = extractValueBySelector(doc, "input#hfLat", "value");
+            String hfLan = extractValueBySelector(doc, "input#hfLan", "value");
+
             Temple temple = new Temple(
                 name,
                 moolavar,
@@ -83,7 +86,9 @@ public class TempleController {
                 thanksGiving,
                 greatness,
                 history,
-                features
+                features,
+                hfLat,
+                hfLan
             );
 
             System.out.println("Temple info extracted: " + temple);
@@ -94,6 +99,17 @@ public class TempleController {
             e.printStackTrace();
             throw new IOException("Failed to get temple info", e);
         }
+    }
+
+    /**
+     * Extracts an attribute value from an element found by a CSS selector.
+     */
+    private String extractValueBySelector(Document doc, String selector, String attribute) {
+        Element element = doc.selectFirst(selector);
+        if (element != null) {
+            return element.attr(attribute).trim();
+        }
+        return null;
     }
 
     /**
