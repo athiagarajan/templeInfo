@@ -27,5 +27,9 @@ public record Temple(
     String history,
     String features,
     Double hfLat,
-    Double hfLan
+    Double hfLan,
+    String location,
+    String nearByAirport,
+    String nearByRailwayStation,
+    String accommodation
 ) {}
