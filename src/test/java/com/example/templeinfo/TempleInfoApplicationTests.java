@@ -124,6 +124,12 @@ class TempleInfoApplicationTests {
                 "</table>" +
                 "<input type=\"hidden\" name=\"hfLat\" id=\"hfLat\" value=\"11.40033684\" />" +
                 "<input type=\"hidden\" name=\"hfLan\" id=\"hfLan\" value=\"79.69300032\" />" +
+                "<table>" +
+                "<tr><td><span class=\"subhead\">Location :</span><br><span class=\"newsdetails\">Mock Location Content</span></td></tr>" +
+                "<tr><td><span class=\"subhead\">Near By Airport :</span><br><span class=\"newsdetails\">Mock Near By Airport Content</span></td></tr>" +
+                "<tr><td><span class=\"subhead\">Near By Railway Station :</span><br><span class=\"newsdetails\">Mock Near By Railway Station Content</span></td></tr>" +
+                "<tr><td><span class=\"subhead\">Accomodation :</span><br><span class=\"newsdetails\"><b>Cuddalore:</b><br><br>Hotel Sharadaram:&nbsp; +91-4144-221 336<br>Hotel Akshaya: +91-4144-220 191 and 192<br></span></td></tr>" +
+                "</table>" +
                 "</body></html>";
 
         when(webPageFetcher.fetch("https://temple.dinamalar.com/en/new_en.php?id=492")).thenReturn(Jsoup.parse(mockHtml));
@@ -167,5 +173,9 @@ class TempleInfoApplicationTests {
         assertThat(temple.features()).isEqualTo("Mock Features Content");
         assertThat(temple.hfLat()).isEqualTo(11.40033684);
         assertThat(temple.hfLan()).isEqualTo(79.69300032);
+        assertThat(temple.location()).isEqualTo("Mock Location Content");
+        assertThat(temple.nearByAirport()).isEqualTo("Mock Near By Airport Content");
+        assertThat(temple.nearByRailwayStation()).isEqualTo("Mock Near By Railway Station Content");
+        assertThat(temple.accommodation()).isEqualTo("Cuddalore:, Hotel Sharadaram: +91-4144-221 336, Hotel Akshaya: +91-4144-220 191 and 192");
     }
 }

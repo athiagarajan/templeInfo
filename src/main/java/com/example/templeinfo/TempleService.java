@@ -26,7 +26,7 @@ public class TempleService {
     }
 
     private Temple insertTemple(Temple temple) {
-        String sql = "INSERT INTO temples (id, name, moolavar, urchavar, amman_thayar, thala_virutcham, theertham, agamam_pooja, old_year, historical_name, city, district, state, singers, festival, general_information, address, phone, opening_time, speciality, prayers, thanks_giving, greatness, history, features, hf_lat, hf_lan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO temples (id, name, moolavar, urchavar, amman_thayar, thala_virutcham, theertham, agamam_pooja, old_year, historical_name, city, district, state, singers, festival, general_information, address, phone, opening_time, speciality, prayers, thanks_giving, greatness, history, features, hf_lat, hf_lan, location, near_by_airport, near_by_railway_station, accommodation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql,
                 temple.id(), temple.name(), temple.moolavar(), temple.urchavar(), temple.ammanThayar(),
                 temple.thalaVirutcham(), temple.theertham(), temple.agamamPooja(), temple.oldYear(),
@@ -34,12 +34,13 @@ public class TempleService {
                 temple.singers(), temple.festival(), temple.generalInformation(), temple.address(),
                 temple.phone(), temple.openingTime(), temple.speciality(), temple.prayers(),
                 temple.thanksGiving(), temple.greatness(), temple.history(), temple.features(),
-                temple.hfLat(), temple.hfLan());
+                temple.hfLat(), temple.hfLan(), temple.location(), temple.nearByAirport(),
+                temple.nearByRailwayStation(), temple.accommodation());
         return temple;
     }
 
     private Temple updateTemple(Temple temple) {
-        String sql = "UPDATE temples SET name = ?, moolavar = ?, urchavar = ?, amman_thayar = ?, thala_virutcham = ?, theertham = ?, agamam_pooja = ?, old_year = ?, historical_name = ?, city = ?, district = ?, state = ?, singers = ?, festival = ?, general_information = ?, address = ?, phone = ?, opening_time = ?, speciality = ?, prayers = ?, thanks_giving = ?, greatness = ?, history = ?, features = ?, hf_lat = ?, hf_lan = ? WHERE id = ?";
+        String sql = "UPDATE temples SET name = ?, moolavar = ?, urchavar = ?, amman_thayar = ?, thala_virutcham = ?, theertham = ?, agamam_pooja = ?, old_year = ?, historical_name = ?, city = ?, district = ?, state = ?, singers = ?, festival = ?, general_information = ?, address = ?, phone = ?, opening_time = ?, speciality = ?, prayers = ?, thanks_giving = ?, greatness = ?, history = ?, features = ?, hf_lat = ?, hf_lan = ?, location = ?, near_by_airport = ?, near_by_railway_station = ?, accommodation = ? WHERE id = ?";
         jdbcTemplate.update(sql,
                 temple.name(), temple.moolavar(), temple.urchavar(), temple.ammanThayar(),
                 temple.thalaVirutcham(), temple.theertham(), temple.agamamPooja(), temple.oldYear(),
@@ -47,7 +48,8 @@ public class TempleService {
                 temple.singers(), temple.festival(), temple.generalInformation(), temple.address(),
                 temple.phone(), temple.openingTime(), temple.speciality(), temple.prayers(),
                 temple.thanksGiving(), temple.greatness(), temple.history(), temple.features(),
-                temple.hfLat(), temple.hfLan(), temple.id());
+                temple.hfLat(), temple.hfLan(), temple.location(), temple.nearByAirport(),
+                temple.nearByRailwayStation(), temple.accommodation(), temple.id());
         return temple;
     }
 }
